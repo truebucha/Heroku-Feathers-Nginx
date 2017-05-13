@@ -1,0 +1,13 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "mysql": "mysql://dorogadb:dorogadb1999@dorogadb.cvcwmk9s7rwk.us-west-2.rds.amazonaws.com:3306/dorogadb",
+  "public": "../public/",
+  "auth": {
+    "idField": "id",
+    "token": {
+      "secret": "19ayeiTJa7uoV434Vlx96Tg7EK40cvW82+NkwDD6XRnIK3rA6WAZti9I7hLmCrePwPPij7ftJr/8YLl3HeWV9A=="
+    },
+    "local": {}
+  }
+}

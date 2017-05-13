@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vanilla Socket.IO</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container center-text">
+    <h1>Vanilla Socket.IO</h1>
+
+    <section>
+      <h3 class="hidden">Basic email/password authentication via socket</h3>
+      <form class="hidden">
+        <fieldset>
+          <label class="left-text">Email</label>
+          <input type="text" class="block full" name="email" value="truebucha@gmail.com"/>
+        </fieldset>
+        <fieldset>
+          <label class="left-text">Password</label>
+          <input type="password" class="block full" name="password" value="bucha"/>
+        </fieldset>
+        <button id="submit" class="block full">Submit</button>
+      </form>
+      <button id="logout" class="hidden">Logout</button>
+    </section>
+    <button id="send1" class="block full">Submit 1</button>
+    <button id="send2" class="block full">Submit 2</button>
+    <button id="send3" class="block full">Submit 3</button>
+  </div>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js" ></script>
+  <!-- <script type="text/javascript" src="http://localhost/socket.io/socket.io.js"></script> -->
+  <script type="text/javascript" src="serialize.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var $form = $('form');
+      var $logout = $('#logout');
+      var $submit = $('#submit');
+      var $send1 = $('#send1')
+      var $send2 = $('#send2')
+      var $send3 = $('#send3')
+      var host = 'http://localhost:3030';
+      var socket = io(host, {
+        transport: ['websockets']
+    });
+
+    $send1.on('touchstart click', function (ev){
+            console.log('positions');
+         socket.emit('positions::get', 1, (error, message) => {
+             console.log('Positions: ', error, message);
+            });
+     });
+
+     $send2.on('touchstart click', function (ev){
+            console.log('find 2');
+         socket.emit('users::find', {}, (error, message) => {
+              if (error != undefined) {
+                console.log('error ', error);
+              } else {
+                console.log('found ', message);
+              }
+            });
+     });
+
+      $send3.on('touchstart click', function (ev){
+            console.log('message 3');
+         socket.emit('messages::create', {
+                "text": "message 3"
+            }, (error, message) => {
+             console.log('Todo 3', message);
+            });
+
+     });
+      $form.toggleClass('hidden');
+         /*
+    var socket1 = io( 'http://localhost:8080/v1', {
+        transport: ['websockets']
+    });
+
+    var socket2 = io( 'http://localhost:8080/v2', {
+        transport: ['websockets']
+    });
+    var socket3 = io( 'http://localhost:8080/v3', {
+        transport: ['websockets']
+    });*/
+
+
+      // Set up Feathers client side
+
+    socket.on('error', function(error) {
+        alert('Your socket has error.' + error);
+        console.error(error);
+      });
+      socket.on('unauthorized', function(error) {
+        alert('Your socket authentication request failed.');
+        console.error(error);
+      });
+
+      socket.on('disconnect', function(error) {
+        console.error('Socket disconnected', error);
+      });
+
+      socket.on('connect', function() {
+        console.log('Socket connected');
+
+        socket.on('authenticated', function (response) {
+          console.log('Authenticated!', response);
+        //  alert('Your JWT is: ' + response.token);
+
+          $form.toggleClass('hidden');
+          $logout.toggleClass('hidden');
+
+          // find restricted messages now that you are authenticated
+//          socket.emit('messages::find', function(error, result) {
+//            if (error) {
+//              alert('Error finding messages', error);
+//            }
+//
+//            alert('Messages', result);
+//          });
+        });
+
+      });
+    socket.onack(function(packet) {
+        console.log('on ack'+ packet)
+    });
+
+
+
+      $submit.on('touchstart click', function(ev){
+        console.log('auth ');
+        ev.preventDefault();
+
+        var payload = {
+            "email": "truebucha@gmail.com",
+           "password": "bucha"
+        };//$form.serializeForm();
+        payload.type = 'local';
+        console.log('payload ' + payload);
+        socket.emit('authenticate', payload);
+        console.log("emit authenticate")
+      });
+
+      $logout.on('touchstart click', function(ev) {
+        ev.preventDefault();
+
+        socket.emit('logout', function() {
+          $form.toggleClass('hidden');
+          $logout.toggleClass('hidden');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
