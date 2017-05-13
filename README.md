@@ -1,4 +1,4 @@
-# doroga-node
+# feathersjs + nginx with socket.io
 
 > 
 
